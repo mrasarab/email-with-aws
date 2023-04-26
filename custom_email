@@ -1,0 +1,22 @@
+import smtplib
+import secrets
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+def send_code(to_adress:str):
+    email_sender = os.getenv('email_sender')
+    msg = MIMEMultipart()
+    verify_code = secrets.token_hex(3)
+    msg["subject"] = "verification code"
+    msg["from"] = email_sender
+    msg["to"] = to_adress
+    msg.attach(MIMEText("your verification code is : %s" % (verify_code)))
+    server = smtplib.SMTP(os.getenv('Smtp_server'), 25)
+    server.starttls()
+    server.login(os.getenv('Smtp_Username'),os.getenv('Smtp_Password'))
+    text = msg.as_string()
+    server.sendmail(email_sender,to_adress, text)
+    server.quit()
